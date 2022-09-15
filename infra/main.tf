@@ -11,14 +11,3 @@ provider "aws" {
     }
   }
 }
-
-resource "aws_dynamodb_table" "dragons_table" {
-  name     = "dragons"
-  hash_key = "dragon_name"
-  billing_mode = "PAY_PER_REQUEST"
-
-  attribute {
-    name = "dragon_name"
-    type = "S"
-  }
-}
