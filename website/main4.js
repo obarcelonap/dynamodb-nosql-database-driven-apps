@@ -208,7 +208,7 @@ function showDragons(data_arr){
 									//we do not change the picture the original data is hard coded to the pngs name
 									//in prod you would trigger lambda to rename the image in s3
 									//as we are using a CDN for the images that we host (to save the student uploading files), we can;t ddo this.
-		html_str += 			'<img alt="This is a picture of ' +  dragon_name_str + ' " src="' + dragon_name_str + '.png" width="300" height="300" />'; 
+		html_str += 			'<img alt="This is a picture of ' +  dragon_name_str + ' " src="/images/' + dragon_name_str + '.png" width="300" height="300" />';
 		
 		html_str += 				'<figcaption data-role="description">' + description_str + '</figcaption>';
 		html_str += 			'</figure>';

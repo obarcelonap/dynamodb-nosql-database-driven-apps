@@ -1,5 +1,5 @@
-resource "aws_dynamodb_table" "dragons_table" {
-  name         = "dragons"
+resource "aws_dynamodb_table" "dragons_stats_table" {
+  name         = "dragon_stats"
   hash_key     = "dragon_name"
   billing_mode = "PAY_PER_REQUEST"
 
@@ -9,32 +9,52 @@ resource "aws_dynamodb_table" "dragons_table" {
   }
 }
 
-resource "aws_dynamodb_table_item" "dragon_1" {
-  table_name = aws_dynamodb_table.dragons_table.name
-  hash_key   = aws_dynamodb_table.dragons_table.hash_key
+resource "aws_dynamodb_table" "dragons_current_power_table" {
+  name         = "dragon_current_power"
+  hash_key     = "game_id"
+  billing_mode = "PAY_PER_REQUEST"
 
-  item = <<ITEM
-{
-  "dragon_name": { "S": "sparky" },
-  "dragon_type": { "S": "green" },
-  "description": { "S": "breaths acid" },
-  "attack": { "N": "10" },
-  "defense": { "N": "7"}
-}
-ITEM
+  attribute {
+    name = "game_id"
+    type = "S"
+  }
 }
 
-resource "aws_dynamodb_table_item" "dragon_2" {
-  table_name = aws_dynamodb_table.dragons_table.name
-  hash_key   = aws_dynamodb_table.dragons_table.hash_key
+resource "aws_dynamodb_table" "dragons_bonus_attack_table" {
+  name         = "dragon_bonus_attack"
+  hash_key     = "breath_attack"
+  range_key    = "range"
+  billing_mode = "PAY_PER_REQUEST"
 
-  item = <<ITEM
-{
-  "dragon_name": { "S": "tallie" },
-  "dragon_type": { "S": "red" },
-  "description": { "S": "breaths fire" },
-  "attack": { "N": "7" },
-  "defense": { "N": "10" }
+  attribute {
+    name = "breath_attack"
+    type = "S"
+  }
+  attribute {
+    name = "range"
+    type = "N"
+  }
 }
-ITEM
+
+resource "aws_dynamodb_table" "dragons_family_table" {
+  name         = "dragon_family"
+  hash_key     = "family"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "family"
+    type = "S"
+  }
+}
+
+resource "null_resource" "dragons_upload_tables_data" {
+  depends_on = [
+    aws_dynamodb_table.dragons_stats_table,
+    aws_dynamodb_table.dragons_bonus_attack_table,
+    aws_dynamodb_table.dragons_current_power_table,
+    aws_dynamodb_table.dragons_family_table,
+  ]
+  provisioner "local-exec" {
+    command = "npm install aws-sdk && node seed_dragons.js"
+  }
 }

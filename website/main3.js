@@ -178,7 +178,7 @@ function showDragons(data_arr){
 		html_str += 		'<span data-role="damage">' + damage_str + '</span>';
 		html_str += 		'<span data-role="protection">' + protection_str + '</span>';
 		html_str += 		'<figure>';
-		html_str += 			'<img alt="This is a picture of ' +  dragon_name_str + ' " src="' + dragon_name_str + '.png" width="300" height="300" />'; 
+		html_str += 			'<img alt="This is a picture of ' +  dragon_name_str + ' " src="/images/' + dragon_name_str + '.png" width="300" height="300" />';
 		html_str += 			'<figcaption>' + description_str + '</figcaption>';
 		html_str += 		'</figure>';
 		html_str += 	'</section>';
