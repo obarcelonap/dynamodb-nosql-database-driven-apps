@@ -1,4 +1,4 @@
-# aws-cloud-technical-essentials
+# dynamodb-nosql-database-driven-apps
 
 Contains exercises from coursera's course [Amazon DynamoDB: Building NoSQL Database-Driven Applications](https://www.coursera.org/learn/dynamodb-nosql-database-driven-apps)
 

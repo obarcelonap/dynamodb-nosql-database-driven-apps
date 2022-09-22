@@ -1,3 +1,7 @@
+resource "aws_api_gateway_rest_api" "dragons_search_api" {
+  name = "DragonSearchAPI"
+}
+
 resource "aws_api_gateway_deployment" "dragons_search_api_deployment" {
   rest_api_id       = aws_api_gateway_rest_api.dragons_search_api.id
   stage_name        = "prod"
@@ -7,8 +11,11 @@ resource "aws_api_gateway_deployment" "dragons_search_api_deployment" {
   }
 }
 
-resource "aws_api_gateway_rest_api" "dragons_search_api" {
-  name = "DragonSearchAPI"
+resource "aws_api_gateway_stage" "dragons_search_api_stage" {
+  deployment_id        = aws_api_gateway_deployment.dragons_search_api_deployment.id
+  rest_api_id          = aws_api_gateway_rest_api.dragons_search_api.id
+  stage_name           = aws_api_gateway_deployment.dragons_search_api_deployment.stage_name
+  xray_tracing_enabled = true
 }
 
 resource "aws_api_gateway_method" "dragons_search_api_post_method" {

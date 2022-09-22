@@ -1,7 +1,20 @@
+resource "null_resource" "zip_dragon_search_dependencies" {
+  provisioner "local-exec" {
+    command = "cd ${path.module}/scan_dragons && npm install"
+  }
+
+  triggers = {
+    package = sha256(file("${path.module}/scan_dragons/package.json"))
+    lock = sha256(file("${path.module}/scan_dragons/package-lock.json"))
+  }
+}
+
 data "archive_file" "zip_dragon_search_lambda" {
   type        = "zip"
-  source_file = "scan_dragons.js"
-  output_path = "scan_dragons.zip"
+  source_dir  = "${path.module}/scan_dragons/"
+  output_path = "${path.module}/scan_dragons.zip"
+
+  depends_on = [null_resource.zip_dragon_search_dependencies]
 }
 
 resource "aws_lambda_function" "dragon_search_lambda" {
