@@ -14,18 +14,27 @@
 * permissions and limitations under the License.
 */
 
-var
+var 
     AWSXRay = null,
     AWS = null;
 
 exports.handler = function (event, contexts, callback) {
-    AWSXRay = require("aws-xray-sdk-core"),
+        AWSXRay = require("aws-xray-sdk-core"),
         AWS = AWSXRay.captureAWS(require("aws-sdk"));
-    if (event["dragon_name_str"] !== undefined && event["dragon_name_str"] !== "All") {
-        justThisDragon(event["dragon_name_str"], callback);
-    } else {
-        scanTable(callback);
-    }
+   if(event["user_name_str"] === undefined || event["session_id_str"] === undefined){
+        return callback("not allowed", null);
+   }else{
+        confirmLogin(event["user_name_str"], event["session_id_str"], function(err, success_boo){
+            if(err){
+                return callback("nope", null);
+            }
+            if(event["dragon_name_str"] !== undefined && event["dragon_name_str"] !== "All"){
+                justThisDragon(event["dragon_name_str"], callback);
+            }else{
+                scanTable(callback);
+            }
+        });
+   }
 };
 
 if(AWSXRay === null){
@@ -37,6 +46,31 @@ var DDB = new AWS.DynamoDB({
     region: "us-east-1"
 });
 
+function confirmLogin(user_name_str, session_id_str, cb){
+    var 
+        params = {
+            ExpressionAttributeValues: {
+                ":session_id": {
+                    S: session_id_str
+                }
+            },
+            KeyConditionExpression: "session_id = :session_id",
+            TableName: "sessions"
+        };
+     console.log(user_name_str, session_id_str);
+     DDB.query(params, function(err, data){
+         if(err){
+            console.log(err);
+             return cb("nope", null);
+         }
+        if(data.Items && data.Items[0] && data.Items[0].user_name && data.Items[0].user_name.S === user_name_str){
+            console.log("match");
+            cb(null, true);
+         }else{
+            cb("not allowed", null);
+         }
+     });
+}
 function justThisDragon(dragon_name_str, cb) {
     var
         params = {
@@ -76,11 +110,11 @@ function scanTable(cb) {
         if (err) {
             cb(err);
         } else if (data.LastEvaluatedKey) {
-
+            
             items = items.concat(data.Items);
-
+            
             params.ExclusiveStartKey = data.LastEvaluatedKey;
-
+            
             DDB.scan(params, scanUntilDone);
         } else {
             items = items.concat(data.Items);
@@ -100,3 +134,5 @@ if(process.argv[2] === "test"){
         scanTable(console.log);
     }
 }
+
+

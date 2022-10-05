@@ -58,3 +58,55 @@ resource "null_resource" "dragons_upload_tables_data" {
     command = "npm install aws-sdk && node seed_dragons.js"
   }
 }
+
+resource "aws_dynamodb_table" "users_table" {
+  name         = "users"
+  hash_key     = "user_name"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "user_name"
+    type = "S"
+  }
+
+  attribute {
+    name = "email_address"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name               = "email_index"
+    hash_key           = "email_address"
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["password"]
+  }
+}
+
+resource "aws_dynamodb_table" "sessions_table" {
+  name         = "sessions"
+  hash_key     = "session_id"
+  range_key    = "user_name"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "user_name"
+    type = "S"
+  }
+
+  attribute {
+    name = "session_id"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "expiration_time"
+    enabled        = true
+  }
+}
+
+resource "null_resource" "users_upload_data" {
+  depends_on = [aws_dynamodb_table.users_table]
+  provisioner "local-exec" {
+    command = "npm install aws-sdk bcrypt && node upload_and_hash_passwords.js"
+  }
+}
